@@ -57,6 +57,30 @@ deposit
     });
   });
 deposit
+  .command('sendDeposit')
+  .description('The sendDeposit method creates a new deposit with a source address and a term and sends it to another wallet. The output will return the transactionHash of the creating transaction.')
+  .argument('sourceAddress <string>', 'Wallet address to take funds from')
+  .argument('amount <integer>', 'The amount to deposit')
+  .argument('term <integer>', 'The length of the deposit (Minimum 21,900)')
+  .argument('destinationAddress <string>', 'Wallet address of receiver')
+  .action(() => {
+    let srcAddress = prompt('Enter source address: ');
+    let destAddress = prompt('Enter destionation address: ');
+    let amount = parseFloat(prompt('Enter ammount: '));
+    let term = parseInt(prompt('Enter term: '));
+    
+    ccxApi.createDeposit({
+      sourceAddress: srcAddress,
+      amount: amount,
+      term: term,
+      destinationAddress: destAddress
+    }).then(result => {
+      console.log(result);
+    }).catch(err => {
+      console.error(err);
+    });
+  });
+deposit
   .command('getDeposit')
   .description('The getDeposit method returns the details of a deposit given the depositId.')
   .argument('depositId <integer>', 'The depositId')
@@ -64,6 +88,19 @@ deposit
     let id = parseInt(prompt('Enter deposit id: '));
     
     ccxApi.getDeposit(id).then(result => {
+      console.log(result);
+    }).catch(err => {
+      console.error(err);
+    });
+  });
+deposit
+  .command('withdrawDeposit ')
+  .description('The getDeposit method returns the details of a deposit given the depositId.')
+  .argument('depositId <integer>', 'The depositId')
+  .action(() => {
+    let id = parseInt(prompt('Enter deposit id: '));
+    
+    ccxApi.withdrawDeposit(id).then(result => {
       console.log(result);
     }).catch(err => {
       console.error(err);
