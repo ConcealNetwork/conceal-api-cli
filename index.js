@@ -33,9 +33,9 @@ program
 // adding deposit related commands
 // *****************************************************
 
-let deposits = program.command("deposit");
-deposits.description("Deposit related commands....");
-deposits
+let deposit = program.command("deposit");
+deposit.description("Deposit related commands....");
+deposit
   .command('createDeposit')
   .description('The createDeposit method creates a new deposit with a source address and a term. The output will return the transactionHash of the creating transaction. The deposit will only reflect in the count and deposit index when the tx is confirmed. This method is available from version 6.3.0 and newer versions only.')
   .argument('address <string>', 'Wallet address')
@@ -56,7 +56,7 @@ deposits
       console.error(err);
     });
   });
-deposits
+deposit
   .command('getDeposit')
   .description('The getDeposit method returns the details of a deposit given the depositId.')
   .argument('depositId <integer>', 'The depositId')
@@ -122,6 +122,88 @@ wallet
       console.error(err);
     });
   });
+
+// ****************************************************
+// adding address related commands
+// *****************************************************
+
+let address = program.command("address");
+address.description("Address related commands....");
+address
+  .command('getAddresses')
+  .description('The getAddresses method returns the array of addresses from the current container.')
+  .action(() => {    
+    ccxApi.getAddresses().then(result => {
+      console.log(result);
+    }).catch(err => {
+      console.error(err);
+    });
+  });
+address
+  .command('createAddress')
+  .description('The createAddress method creates an additional address in your wallet.')
+  .action(() => {   
+    ccxApi.createAddress().then(result => {
+      console.log(result);
+    }).catch(err => {
+      console.error(err);
+    });
+  });
+address
+  .command('createAddressList')
+  .description('The createAddressList method creates additional address in your wallet from the provided list of private keys.')
+  .action(() => {   
+    let keyList = Array.from(prompt('Enter array of private spend keys (delimited by comma): '));
+
+    ccxApi.createAddress({
+      privateSpendKeys: keyList
+    }).then(result => {
+      console.log(result);
+    }).catch(err => {
+      console.error(err);
+    });
+  });
+address
+  .command('deleteAddress')
+  .description('The deleteAddress method deletes a specified wallet address from the container.')
+  .argument('address <string>', 'Wallet address')
+  .action(() => {
+    let address = prompt('Enter address: ');
+    
+    ccxApi.deleteAddress(address).then(result => {
+      console.log(result);
+    }).catch(err => {
+      console.error(err);
+    });
+  });
+address
+  .command('createIntegrated')
+  .description('The deleteAddress method deletes a specified wallet address from the container.')
+  .argument('address <string>', 'The address to associate the payment ID with')
+  .argument('paymentId <string>', 'The payment ID')
+  .action(() => {
+    let address = prompt('Enter address: ');
+    let paymentId = prompt('Enter paymentId: ');
+    
+    ccxApi.createIntegrated(address, paymentId).then(result => {
+      console.log(result);
+    }).catch(err => {
+      console.error(err);
+    });
+  });  
+address
+  .command('splitIntegrated')
+  .description('The splitIntegrated method takes an integrated address and returns its address and its payment ID.')
+  .argument('address <string>', 'The integrated address to split	')
+  .action(() => {
+    let address = prompt('Enter address: ');
+    
+    ccxApi.splitIntegrated(address).then(result => {
+      console.log(result);
+    }).catch(err => {
+      console.error(err);
+    });
+  });  
   
 // ****************************************************
 // adding daemon related commands
