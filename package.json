@@ -1,0 +1,17 @@
+{
+  "name": "conceal-api-cli",
+  "version": "1.0.0",
+  "description": "CLI for Conceal JS API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Taegus",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^10.0.1",
+    "conceal-api": "^0.8.6",
+    "prompt-sync": "^4.2.0",
+    "yargs": "^17.7.1"
+  }
+}
