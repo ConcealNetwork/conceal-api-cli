@@ -1,16 +1,27 @@
 const { Command } = require("commander");
 const prompt = require('prompt-sync')();
 const ccx = require("conceal-api");
+const path = require('path');
+const fs =  require('fs');
 // creating a command instance
 const program = new Command();
 
-const ccxApi = new ccx({
+
+let config = {
   daemonHost: 'http://127.0.0.1', 
   walletHost: 'http://127.0.0.1', 
   daemonRpcPort: 16000,
   walletRpcPort: 6061,
   timeout: 5000
-})
+}
+
+// check if we have config.json present in same dir
+if (fs.existsSync(path.join(__dirname, 'config.json'))) {
+  config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'));
+} 
+
+// create the api with the config
+const ccxApi = new ccx(config);
 
 // creating tool
 program
