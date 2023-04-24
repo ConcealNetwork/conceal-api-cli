@@ -159,7 +159,37 @@ wallet
       console.error(err);
     });
   });
-
+wallet
+  .command('exportWallet')
+  .description('The exportWallet method exports the wallet into a new file. The exported wallet is stored in the same folder as the running wallet.')
+  .argument('exportFilename <string>', 'Filename of the exported wallet')
+  .action(() => {
+    let filename = prompt('Enter filename: ');
+    
+    ccxApi.exportWallet({
+      exportFilename: filename
+    }).then(result => {
+      console.log(result);
+    }).catch(err => {
+      console.error(err);
+    });
+  });
+wallet
+  .command('exportWalletKeys')
+  .description('The exportWalletKeys method exports the keys of the wallet into a new file. The exported wallet is stored in the same folder as the running wallet.')
+  .argument('exportFilename <string>', 'Filename of the exported wallet')
+  .action(() => {
+    let filename = prompt('Enter filename: ');
+    
+    ccxApi.exportWalletKeys({
+      exportFilename: filename
+    }).then(result => {
+      console.log(result);
+    }).catch(err => {
+      console.error(err);
+    });
+  });
+  
 // ****************************************************
 // adding address related commands
 // *****************************************************
