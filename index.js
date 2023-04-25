@@ -1,11 +1,16 @@
-const { Command } = require("commander");
-const prompt = require('prompt-sync')();
-const ccx = require("conceal-api");
-const path = require('path');
-const fs =  require('fs');
+import { Command } from 'commander';
+import { fileURLToPath } from 'url';
+import promptSync from 'prompt-sync';
+import inquirer from 'inquirer';
+import ccx from 'conceal-api';
+import path from 'path';
+import fs from  'fs';
 // creating a command instance
 const program = new Command();
+const prompt = promptSync();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let config = {
   daemonHost: 'http://127.0.0.1', 
@@ -37,10 +42,7 @@ let deposit = program.command("deposit");
 deposit.description("Deposit related commands....");
 deposit
   .command('createDeposit')
-  .description('The createDeposit method creates a new deposit with a source address and a term. The output will return the transactionHash of the creating transaction. The deposit will only reflect in the count and deposit index when the tx is confirmed. This method is available from version 6.3.0 and newer versions only.')
-  .argument('address <string>', 'Wallet address')
-  .argument('amount <integer>', 'The amount to deposit')
-  .argument('term <integer>', 'The length of the deposit (Minimum 21,900)')
+  .description('The createDeposit method creates a new deposit with a source address and a term.')
   .action(() => {
     let address = prompt('Enter source address: ');
     let amount = parseFloat(prompt('Enter ammount: '));
@@ -58,11 +60,7 @@ deposit
   });
 deposit
   .command('sendDeposit')
-  .description('The sendDeposit method creates a new deposit with a source address and a term and sends it to another wallet. The output will return the transactionHash of the creating transaction.')
-  .argument('sourceAddress <string>', 'Wallet address to take funds from')
-  .argument('amount <integer>', 'The amount to deposit')
-  .argument('term <integer>', 'The length of the deposit (Minimum 21,900)')
-  .argument('destinationAddress <string>', 'Wallet address of receiver')
+  .description('The sendDeposit method creates a new deposit with a source address and a term and sends it to another wallet.')
   .action(() => {
     let srcAddress = prompt('Enter source address: ');
     let destAddress = prompt('Enter destionation address: ');
@@ -83,7 +81,6 @@ deposit
 deposit
   .command('getDeposit')
   .description('The getDeposit method returns the details of a deposit given the depositId.')
-  .argument('depositId <integer>', 'The depositId')
   .action(() => {
     let id = parseInt(prompt('Enter deposit id: '));
     
@@ -96,7 +93,6 @@ deposit
 deposit
   .command('withdrawDeposit ')
   .description('The getDeposit method returns the details of a deposit given the depositId.')
-  .argument('depositId <integer>', 'The depositId')
   .action(() => {
     let id = parseInt(prompt('Enter deposit id: '));
     
@@ -125,8 +121,7 @@ wallet
   });
 wallet
   .command('reset')
-  .description(`The reset method allows you to re-sync (rescan) your wallet container including all the containers addresses. Please note that on containers with a lot of wallets and transactions, the process can take some time.`)
-  .argument('privateViewKey <string>', 'A privateViewKey to substitute the existing wallet with')
+  .description('The reset method allows you to re-sync (rescan) your wallet container including all the containers addresses.')
   .action(() => {
     let key = prompt('Enter private view Key (optional): ');
 
@@ -149,7 +144,6 @@ wallet
 wallet
   .command('getBalance')
   .description('The getBalance method returns a balance for a specified address. If address is not specified, returns the balance of the first address in the wallet.')
-  .argument('address <string>', 'Wallet address')
   .action(() => {
     let address = prompt('Enter address: ');
     
@@ -162,7 +156,6 @@ wallet
 wallet
   .command('exportWallet')
   .description('The exportWallet method exports the wallet into a new file. The exported wallet is stored in the same folder as the running wallet.')
-  .argument('exportFilename <string>', 'Filename of the exported wallet')
   .action(() => {
     let filename = prompt('Enter filename: ');
     
@@ -177,7 +170,6 @@ wallet
 wallet
   .command('exportWalletKeys')
   .description('The exportWalletKeys method exports the keys of the wallet into a new file. The exported wallet is stored in the same folder as the running wallet.')
-  .argument('exportFilename <string>', 'Filename of the exported wallet')
   .action(() => {
     let filename = prompt('Enter filename: ');
     
@@ -246,8 +238,6 @@ address
 address
   .command('createIntegrated')
   .description('The deleteAddress method deletes a specified wallet address from the container.')
-  .argument('address <string>', 'The address to associate the payment ID with')
-  .argument('paymentId <string>', 'The payment ID')
   .action(() => {
     let address = prompt('Enter address: ');
     let paymentId = prompt('Enter paymentId: ');
@@ -261,7 +251,6 @@ address
 address
   .command('splitIntegrated')
   .description('The splitIntegrated method takes an integrated address and returns its address and its payment ID.')
-  .argument('address <string>', 'The integrated address to split	')
   .action(() => {
     let address = prompt('Enter address: ');
     
@@ -271,6 +260,340 @@ address
       console.error(err);
     });
   });  
+
+// ****************************************************
+// adding transaction related commands
+// *****************************************************
+
+let transaction = program.command("transaction");
+transaction.description("Transaction related commands....");
+transaction
+  .command('getTransaction')
+  .description('The getTransaction method returns information about a particular transaction.')
+  .action(() => {
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'hash',
+        message: 'Enter tx hash:'
+      }
+    ]).then((answers) => {    
+      ccxApi.getTransaction(answers.hash).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
+    });
+  });
+transaction
+  .command('getTransactions')
+  .description('The getTransactions method returns an array of block and transaction hashes.')
+  .action(() => {
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'addressList',
+        message: 'Enter array of addressed to include (delimited by comma):'
+      },
+      {
+        type: 'number',
+        name: 'blockCount',
+        message: 'The number of blocks to return:'
+      },
+      {
+        type: 'input',
+        name: 'blockHash',
+        message: 'The hash of the first block to include: '
+      },
+      {
+        type: 'number',
+        name: 'firstBlockIndex',
+        message: 'The height of the first block to include:'
+      },
+      {
+        type: 'input',
+        name: 'paymentId',
+        message: 'A paymentId that must be used in the returned transaction hashes:'
+      }
+    ]).then((answers) => {
+      ccxApi.getTransactions({
+        addresses: Array.from(answers.addressList),
+        blockCount: answers.blockCount,
+        blockHash: answers.blockHash,
+        firstBlockIndex: answers.firstBlockIndex,
+        paymentId: answers.paymentId
+      }).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });  
+    });
+  });
+transaction
+  .command('getTransactionHashes')
+  .description('The getTransactionHashes method returns an array of block and transaction hashes.')
+  .action(() => {
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'addressList',
+        message: 'Enter array of addressed to include (delimited by comma):'
+      },
+      {
+        type: 'number',
+        name: 'blockCount',
+        message: 'The number of blocks to return:'
+      },
+      {
+        type: 'input',
+        name: 'blockHash',
+        message: 'The hash of the first block to include: '
+      },
+      {
+        type: 'number',
+        name: 'firstBlockIndex',
+        message: 'The height of the first block to include:'
+      },
+      {
+        type: 'input',
+        name: 'paymentId',
+        message: 'A paymentId that must be used in the returned transaction hashes:'
+      }
+    ]).then((answers) => {
+      ccxApi.getTransactionHashes({
+        addresses: Array.from(answers.addressList),
+        blockCount: answers.blockCount,
+        blockHash: answers.blockHash,
+        firstBlockIndex: answers.firstBlockIndex,
+        paymentId: answers.paymentId
+      }).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });  
+    });
+  });
+transaction
+  .command('getUnconfirmedTransactionHashes')
+  .description('The getUnconfirmedTransactionHashes method returns an array of block and transaction hashes.')
+  .action(() => {
+    inquirer.prompt([
+      {
+        type: 'number',
+        name: 'addressList',
+        message: 'Addresses to check for unconfirmed transactions (delimited by comma). If addresses is empty, all addresses of the container will be checked:'
+      }
+    ]).then((answers) => {    
+      ccxApi.getUnconfirmedTransactionHashes(Array.from(answers.addressList)).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
+    });
+  });
+transaction
+  .command('sendTransaction')
+  .description('The sendTransaction method allows you to send transaction to an address.')
+  .action(() => {
+    inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'simple',
+        message: 'Do you want simple version?',
+      },
+      {
+        type: 'input',
+        name: 'addressList',
+        message: 'Enter array of addressed to include (delimited by comma):',
+        when(answers) {
+          return !answers.simple;
+        }
+      },
+      {
+        type: 'input',
+        name: 'address',
+        message: 'Destination address:'
+      },
+      {
+        type: 'number',
+        name: 'amount',
+        message: 'Amount to transfer:'
+      },
+      {
+        type: 'input',
+        name: 'message',
+        message: 'Additional message (optional):'
+      },
+      {
+        type: 'input',
+        name: 'paymentId',
+        message: 'PaymentId:'
+      },
+      {
+        type: 'number',
+        name: 'unlockTime',
+        message: 'Height of the block until which transaction is going to be locked for spending:',
+        when(answers) {
+          return !answers.simple;
+        }
+      },
+      {
+        type: 'input',
+        name: 'changeAddress',
+        message: 'Valid and existing in this container, it will receive the change of the transaction (optional):',
+        when(answers) {
+          return !answers.simple;
+        }
+      }
+    ]).then((answers) => {
+      let opts = {
+        anonymity: 5,
+        fee: 1000,        
+        transfers: [
+          {
+            amount: answers.amount * 1000000,
+            address: answers.address
+          }
+        ]
+      };    
+  
+      if (answers.changeAddress) { opts["changeAddress"] = answers.changeAddress; }    
+      if (answers.addressList) { opts["addresses"] = Array.from(answers.addressList); }
+      if (answers.unlockTime) { opts["changeAddress"] = answers.unlockTime; }    
+      if (answers.paymentId) { opts["paymentId"] = answers.paymentId; }
+    
+      ccxApi.sendTransaction(opts).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });  
+    });
+  });
+transaction
+  .command('createDelayedTransaction')
+  .description('The createDelayedTransaction method creates a delayed transaction.')
+  .action(() => {
+    inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'simple',
+        message: 'Do you want simple version?',
+      },
+      {
+        type: 'input',
+        name: 'addressList',
+        message: 'Enter array of addressed to include (delimited by comma):',
+        when(answers) {
+          return !answers.simple;
+        }
+      },
+      {
+        type: 'input',
+        name: 'address',
+        message: 'Destination address:'
+      },
+      {
+        type: 'number',
+        name: 'amount',
+        message: 'Amount to transfer:'
+      },
+      {
+        type: 'input',
+        name: 'message',
+        message: 'Additional message (optional):'
+      },
+      {
+        type: 'input',
+        name: 'paymentId',
+        message: 'PaymentId:'
+      },
+      {
+        type: 'number',
+        name: 'unlockTime',
+        message: 'Height of the block until which transaction is going to be locked for spending:',
+        when(answers) {
+          return !answers.simple;
+        }
+      },
+      {
+        type: 'input',
+        name: 'changeAddress',
+        message: 'Valid and existing in this container, it will receive the change of the transaction (optional):',
+        when(answers) {
+          return !answers.simple;
+        }
+      }
+    ]).then((answers) => {
+      let opts = {
+        anonymity: 5,
+        fee: 1000,        
+        transfers: [
+          {
+            amount: answers.amount * 1000000,
+            address: answers.address
+          }
+        ]
+      };    
+  
+      if (answers.changeAddress) { opts["changeAddress"] = answers.changeAddress; }    
+      if (answers.addressList) { opts["addresses"] = Array.from(answers.addressList); }
+      if (answers.unlockTime) { opts["changeAddress"] = answers.unlockTime; }    
+      if (answers.paymentId) { opts["paymentId"] = answers.paymentId; }
+    
+      ccxApi.sendTransaction(opts).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });  
+    });    
+  });
+transaction
+  .command('sendDelayedTransaction')
+  .description('The sendDelayedTransaction method sends a specified delayed transaction.')
+  .action(() => {
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'hash',
+        message: 'Delayed transaction to send:'
+      }
+    ]).then((answers) => {    
+      ccxApi.sendDelayedTransaction (answers.hash).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
+    });
+  });
+  transaction
+  .command('deleteDelayedTransaction')
+  .description('The deleteDelayedTransaction method deletes a specified delayed transaction.')
+  .action(() => {
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'hash',
+        message: 'Delayed transaction to delete:'
+      }
+    ]).then((answers) => {    
+      ccxApi.deleteDelayedTransaction (answers.hash).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });  
+    });    
+  });
+transaction
+  .command('getDelayedTransactionHashes')
+  .description('The getDelayedTransactionHashes method returns hashes of delayed transactions.')
+  .action(() => {
+    ccxApi.getDelayedTransactionHashes().then(result => {
+      console.log(result);
+    }).catch(err => {
+      console.error(err);
+    });
+  });
+
   
 // ****************************************************
 // adding daemon related commands
@@ -280,6 +603,7 @@ let daemon = program.command("daemon");
 daemon.description("Daemon related commands....");
 daemon
   .command('getInfo')
+  .description('Get the current chain info.')
   .action(() => {
     ccxApi.info().then(result => {
       console.log(result);
@@ -289,6 +613,7 @@ daemon
   });
 daemon
   .command('getHeight')
+  .description('Get the current height.')
   .action(() => {
     ccxApi.index().then(result => {
       console.log(result);
@@ -298,6 +623,7 @@ daemon
   });
 daemon
   .command('getBlockCount')
+  .description('Get the block count.')
   .action(() => {
     ccxApi.count().then(result => {
       console.log(result);
@@ -307,6 +633,7 @@ daemon
   });
 daemon
   .command('getCurrencyId')
+  .description('Get the id of the CCX currency.')
   .action(() => {
     ccxApi.currencyId().then(result => {
       console.log(result);
@@ -316,39 +643,61 @@ daemon
   });
 daemon
   .command('getBlockHeaderByHeight')
+  .description('Get the block header at the given height.')
   .action(() => {
-    let block = parseInt(prompt('Enter block number: '));
-
-    ccxApi.blockHeaderByHeight(block).then(result => {
-      console.log(result);
-    }).catch(err => {
-      console.error(err);
+    inquirer.prompt([
+      {
+        type: 'number',
+        name: 'block',
+        message: 'Enter block number:'
+      }
+    ]).then((answers) => {    
+      ccxApi.blockHeaderByHeight(answers.block).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
     });
   });
 daemon
   .command('getBlockHeaderByHash')
+  .description('Get the block header for the given hash.')
   .action(() => {
-    let hash = prompt('Enter block hash: ');
-
-    ccxApi.blockHeaderByHash(hash).then(result => {
-      console.log(result);
-    }).catch(err => {
-      console.error(err);
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'hash',
+        message: 'Enter block hash:'
+      }
+    ]).then((answers) => {    
+      ccxApi.blockHeaderByHash(answers.hash).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
     });
   });
 daemon
   .command('getBlockHashByHeight')
+  .description('Get the block hash at the given height.')
   .action(() => {
-    let block = parseInt(prompt('Enter block number: '));
-
-    ccxApi.blockHashByHeight(block).then(result => {
-      console.log(result);
-    }).catch(err => {
-      console.error(err);
+    inquirer.prompt([
+      {
+        type: 'number',
+        name: 'block',
+        message: 'Enter block number:'
+      }
+    ]).then((answers) => {    
+      ccxApi.blockHashByHeight(answers.block).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
     });
   });
 daemon
   .command('getLastBlockHeader')
+  .description('Get the block header for the last block on the chain.')
   .action(() => {
     ccxApi.lastBlockHeader().then(result => {
       console.log(result);
@@ -358,39 +707,62 @@ daemon
   });
 daemon
   .command('getBlock')
+  .description('Get the block for the given hash.')
   .action(() => {
-    let hash = prompt('Enter block hash: ');
-
-    ccxApi.block(hash).then(result => {
-      console.log(result);
-    }).catch(err => {
-      console.error(err);
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'hash',
+        message: 'Enter block hash:'
+      }
+    ]).then((answers) => {    
+      ccxApi.block(answers.hash).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
     });
   });
 daemon
   .command('getBlocks')
+  .description('Get the blocks for the given height.')
   .action(() => {
-    let height = parseInt(prompt('Enter height: '));
-
-    ccxApi.blocks(height).then(result => {
-      console.log(result);
-    }).catch(err => {
-      console.error(err);
+    inquirer.prompt([
+      {
+        type: 'number',
+        name: 'height',
+        message: 'Enter tx hash:'
+      }
+    ]).then((answers) => {    
+      ccxApi.blocks(answers.height).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
     });
+
   });
 daemon
   .command('getTransaction')
+  .description('Get the transaction for the given hash.')
   .action(() => {
-    let hash = prompt('Enter tx hash: ');
-
-    ccxApi.transaction(hash).then(result => {
-      console.log(result);
-    }).catch(err => {
-      console.error(err);
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'hash',
+        message: 'Enter tx hash:'
+      }
+    ]).then((answers) => {    
+      ccxApi.transaction(answers.hash).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
     });
   });
 daemon
   .command('getTransactionPool')
+  .description('Get the transactio pool status.')
   .action(() => {
     ccxApi.transactionPool().then(result => {
       console.log(result);
