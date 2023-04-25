@@ -1,13 +1,11 @@
 import { Command } from 'commander';
 import { fileURLToPath } from 'url';
-import promptSync from 'prompt-sync';
 import inquirer from 'inquirer';
 import ccx from 'conceal-api';
 import path from 'path';
 import fs from  'fs';
 // creating a command instance
 const program = new Command();
-const prompt = promptSync();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -44,63 +42,102 @@ deposit
   .command('createDeposit')
   .description('The createDeposit method creates a new deposit with a source address and a term.')
   .action(() => {
-    let address = prompt('Enter source address: ');
-    let amount = parseFloat(prompt('Enter ammount: '));
-    let term = parseInt(prompt('Enter term: '));
-    
-    ccxApi.createDeposit({
-      sourceAddress: address,
-      amount: amount,
-      term: term
-    }).then(result => {
-      console.log(result);
-    }).catch(err => {
-      console.error(err);
-    });
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'address',
+        message: 'Enter source address:'
+      },{
+        type: 'number',
+        name: 'amount',
+        message: 'Enter ammount:'
+      },{
+        type: 'number',
+        name: 'term',
+        message: 'Enter term:'
+      }
+    ]).then((answers) => {    
+      ccxApi.createDeposit({
+        sourceAddress: answers.address,
+        amount: answers.amount,
+        term: answers.term
+      }).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
+    });    
   });
 deposit
   .command('sendDeposit')
   .description('The sendDeposit method creates a new deposit with a source address and a term and sends it to another wallet.')
   .action(() => {
-    let srcAddress = prompt('Enter source address: ');
-    let destAddress = prompt('Enter destionation address: ');
-    let amount = parseFloat(prompt('Enter ammount: '));
-    let term = parseInt(prompt('Enter term: '));
-    
-    ccxApi.createDeposit({
-      sourceAddress: srcAddress,
-      amount: amount,
-      term: term,
-      destinationAddress: destAddress
-    }).then(result => {
-      console.log(result);
-    }).catch(err => {
-      console.error(err);
-    });
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'srcAddress',
+        message: 'Enter source address:'
+      },{
+        type: 'input',
+        name: 'destAddress',
+        message: 'Enter destionation address:'
+      },{
+        type: 'number',
+        name: 'amount',
+        message: 'Enter ammount:'
+      },{
+        type: 'number',
+        name: 'term',
+        message: 'Enter term:'
+      }
+    ]).then((answers) => {    
+      ccxApi.createDeposit({
+        sourceAddress: answers.srcAddress,
+        amount: answers.amount,
+        term: answers.term,
+        destinationAddress: answers.destAddress
+      }).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
+    });        
   });
 deposit
   .command('getDeposit')
   .description('The getDeposit method returns the details of a deposit given the depositId.')
   .action(() => {
-    let id = parseInt(prompt('Enter deposit id: '));
-    
-    ccxApi.getDeposit(id).then(result => {
-      console.log(result);
-    }).catch(err => {
-      console.error(err);
-    });
+    inquirer.prompt([
+      {
+        type: 'number',
+        name: 'id',
+        message: 'Enter deposit id:'
+      }
+    ]).then((answers) => {    
+      ccxApi.getDeposit(answers.id).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
+    });        
   });
 deposit
   .command('withdrawDeposit ')
   .description('The getDeposit method returns the details of a deposit given the depositId.')
   .action(() => {
-    let id = parseInt(prompt('Enter deposit id: '));
-    
-    ccxApi.withdrawDeposit(id).then(result => {
-      console.log(result);
-    }).catch(err => {
-      console.error(err);
-    });
+    inquirer.prompt([
+      {
+        type: 'number',
+        name: 'id',
+        message: 'Enter deposit id:'
+      }
+    ]).then((answers) => {    
+      ccxApi.withdrawDeposit(answers.id).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
+    });        
   });
 
 // ****************************************************
@@ -123,12 +160,18 @@ wallet
   .command('reset')
   .description('The reset method allows you to re-sync (rescan) your wallet container including all the containers addresses.')
   .action(() => {
-    let key = prompt('Enter private view Key (optional): ');
-
-    ccxApi.resetOrReplace(key).then(result => {
-      console.log(result);
-    }).catch(err => {
-      console.error(err);
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'key',
+        message: 'Enter private view Key (optional):'
+      }
+    ]).then((answers) => {    
+      ccxApi.resetOrReplace(answers.key).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
     });
   });
 wallet
@@ -145,40 +188,58 @@ wallet
   .command('getBalance')
   .description('The getBalance method returns a balance for a specified address. If address is not specified, returns the balance of the first address in the wallet.')
   .action(() => {
-    let address = prompt('Enter address: ');
-    
-    ccxApi.getBalance(address).then(result => {
-      console.log(result);
-    }).catch(err => {
-      console.error(err);
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'address',
+        message: 'Enter address:'
+      }
+    ]).then((answers) => {    
+      ccxApi.getBalance(answers.address).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
     });
   });
 wallet
   .command('exportWallet')
   .description('The exportWallet method exports the wallet into a new file. The exported wallet is stored in the same folder as the running wallet.')
   .action(() => {
-    let filename = prompt('Enter filename: ');
-    
-    ccxApi.exportWallet({
-      exportFilename: filename
-    }).then(result => {
-      console.log(result);
-    }).catch(err => {
-      console.error(err);
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'filename',
+        message: 'Enter filename:'
+      }
+    ]).then((answers) => {    
+      ccxApi.exportWallet({
+        exportFilename: filename
+      }).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
     });
   });
 wallet
   .command('exportWalletKeys')
   .description('The exportWalletKeys method exports the keys of the wallet into a new file. The exported wallet is stored in the same folder as the running wallet.')
   .action(() => {
-    let filename = prompt('Enter filename: ');
-    
-    ccxApi.exportWalletKeys({
-      exportFilename: filename
-    }).then(result => {
-      console.log(result);
-    }).catch(err => {
-      console.error(err);
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'filename',
+        message: 'Enter filename:'
+      }
+    ]).then((answers) => {    
+      ccxApi.exportWallet({
+        exportFilename: filename
+      }).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
     });
   });
   
@@ -202,24 +263,68 @@ address
   .command('createAddress')
   .description('The createAddress method creates an additional address in your wallet.')
   .action(() => {   
-    ccxApi.createAddress().then(result => {
-      console.log(result);
-    }).catch(err => {
-      console.error(err);
+    inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'import',
+        default: false,
+        message: 'Do you want to import your address?'
+      },{
+        type: 'input',
+        name: 'privateSpendKey',
+        message: 'Private spend key:',
+        when(answers) {
+          return answers.import;
+        }
+      },{
+        type: 'input',
+        name: 'publicSpendKey',
+        message: 'Public spend key:',
+        when(answers) {
+          return answers.import;
+        }
+      },
+    ]).then((answers) => {    
+      let opts = {};
+
+      if (answers.import) {
+        opts = {
+          privateSpendKey: answers.privateSpendKey,
+          publicSpendKey: answers.publicSpendKey
+        }
+      }
+
+      ccxApi.createAddress(opts).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
     });
   });
 address
   .command('createAddressList')
   .description('The createAddressList method creates additional address in your wallet from the provided list of private keys.')
   .action(() => {   
-    let keyList = Array.from(prompt('Enter array of private spend keys (delimited by comma): '));
-
-    ccxApi.createAddress({
-      privateSpendKeys: keyList
-    }).then(result => {
-      console.log(result);
-    }).catch(err => {
-      console.error(err);
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'keyList',
+        message: 'Enter array of private spend keys (delimited by comma):'
+      },{
+        type: 'confirm',
+        name: 'reset',
+        default: false,
+        message: 'Reset the wallet?'
+      },
+    ]).then((answers) => {    
+      ccxApi.createAddressList({
+        privateSpendKeys: Array.from(answers.keyList),
+        reset: answers.reset
+      }).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
     });
   });
 address
@@ -227,39 +332,61 @@ address
   .description('The deleteAddress method deletes a specified wallet address from the container.')
   .argument('address <string>', 'Wallet address')
   .action(() => {
-    let address = prompt('Enter address: ');
-    
-    ccxApi.deleteAddress(address).then(result => {
-      console.log(result);
-    }).catch(err => {
-      console.error(err);
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'address',
+        message: 'Enter address:'
+      }
+    ]).then((answers) => {    
+      ccxApi.deleteAddress(answers.address).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
     });
   });
 address
   .command('createIntegrated')
   .description('The deleteAddress method deletes a specified wallet address from the container.')
   .action(() => {
-    let address = prompt('Enter address: ');
-    let paymentId = prompt('Enter paymentId: ');
-    
-    ccxApi.createIntegrated(address, paymentId).then(result => {
-      console.log(result);
-    }).catch(err => {
-      console.error(err);
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'address',
+        message: 'Enter address:'
+      },
+      {
+        type: 'input',
+        name: 'paymentId',
+        message: 'Enter paymentId:'
+      }
+    ]).then((answers) => {    
+      ccxApi.createIntegrated(answers.address, answers.paymentId).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
     });
   });  
 address
   .command('splitIntegrated')
   .description('The splitIntegrated method takes an integrated address and returns its address and its payment ID.')
   .action(() => {
-    let address = prompt('Enter address: ');
-    
-    ccxApi.splitIntegrated(address).then(result => {
-      console.log(result);
-    }).catch(err => {
-      console.error(err);
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'address',
+        message: 'Enter address:'
+      }
+    ]).then((answers) => {    
+      ccxApi.splitIntegrated(answers.address).then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.error(err);
+      });
     });
-  });  
+  }); 
 
 // ****************************************************
 // adding transaction related commands
