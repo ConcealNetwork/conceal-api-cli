@@ -1,5 +1,7 @@
 import { Command } from 'commander';
 import { fileURLToPath } from 'url';
+import { hideBin } from 'yargs/helpers';
+import yargs from 'yargs/yargs';
 import inquirer from 'inquirer';
 import ccx from 'conceal-api';
 import path from 'path';
@@ -18,10 +20,24 @@ let config = {
   timeout: 5000
 }
 
+
 // check if we have config.json present in same dir
 if (fs.existsSync(path.join(__dirname, 'config.json'))) {
   config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'));
 } 
+
+// parse arguments and options
+const argv = yargs(hideBin(process.argv)).argv
+
+if (argv.dh) { config.daemonHost = argv.dh; }
+if (argv.dp) { config.daemonRpcPort = argv.dp; }
+if (argv.wh) { config.walletHost = argv.wh; }
+if (argv.wp) { config.walletRpcPort = argv.wp; }
+
+if (argv.daemonHost) { config.daemonHost = argv.daemonHost; }
+if (argv.daemonPort) { config.daemonRpcPort = argv.daemonPort; }
+if (argv.walletdHost) { config.daemonHost = argv.walletdHost; }
+if (argv.walletdPort) { config.walletRpcPort = argv.walletdPort; }
 
 // create the api with the config
 const ccxApi = new ccx(config);
@@ -30,6 +46,10 @@ const ccxApi = new ccx(config);
 program
   .name("conceal-api-demo")
   .description("A CLI demo for conceal api")
+  .option('--dh, --daemon-host <type>', 'Daemon Host (URL)')
+  .option('--dp, --daemon-port <type>', 'Daemon Port (Number)')
+  .option('--wh, --walletd-host <type>', 'Walletd Host (URL)')
+  .option('--wp, --walletd-port <type>', 'Walletd Host (Number)')
   .version("1.0.0");
 
 // ****************************************************
@@ -899,4 +919,4 @@ daemon
   });
 
 
-program.parse();
+program.parse(process.argv);
