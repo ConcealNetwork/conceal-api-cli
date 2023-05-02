@@ -32,3 +32,31 @@ This example calls the getAddreses command that returns all the addresses presen
   ]
 }
 ```
+# How to build
+You can also build the Windows executable. Later other OS executables will be also added.
+
+```
+npm install
+node build.js
+```
+This will make a "conceal-cli.exe" ready to use executable. No need for node.js from then on.
+
+# How to set daemon and walletd connection info
+If you are using it with node, you can just edit the config.json with the correct info. If you are using the precompiled exectuable you can simply use it from command line.
+
+For the daemon
+```
+conceal-cli --dh=http://127.0.0.1 --dp=16000 daemon getInfo
+```
+or
+```
+conceal-cli --daemon-host=http://127.0.0.1 --daemon-port=16000 daemon getInfo
+```
+And for the walletd
+```
+conceal-cli --wh=http://127.0.0.1 --wp=3333 address getAddresses
+```
+or
+```
+conceal-cli --walletd-host=http://127.0.0.1 --walletd-port=3333 address getAddresses
+```
