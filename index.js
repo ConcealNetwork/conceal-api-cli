@@ -1,5 +1,4 @@
 import { Command } from 'commander';
-import { fileURLToPath } from 'url';
 import { hideBin } from 'yargs/helpers';
 import yargs from 'yargs/yargs';
 import inquirer from 'inquirer';
@@ -8,9 +7,6 @@ import path from 'path';
 import fs from  'fs';
 // creating a command instance
 const program = new Command();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 let config = {
   daemonHost: 'http://127.0.0.1', 
@@ -22,8 +18,8 @@ let config = {
 
 
 // check if we have config.json present in same dir
-if (fs.existsSync(path.join(__dirname, 'config.json'))) {
-  config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'));
+if (fs.existsSync(path.join(process.cwd(), 'config.json'))) {
+  config = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'config.json'), 'utf8'));
 } 
 
 // parse arguments and options
