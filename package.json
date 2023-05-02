@@ -17,7 +17,7 @@
     "rpc",
     "api",
     "cli"
-  ],  
+  ],
   "author": "Taegus",
   "license": "MIT",
   "dependencies": {
@@ -27,6 +27,7 @@
     "yargs": "^17.7.1"
   },
   "devDependencies": {
-    "caxa": "^3.0.1"
+    "caxa": "^3.0.1",
+    "compressing": "^1.9.0"
   }
 }
