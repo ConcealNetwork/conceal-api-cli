@@ -1,12 +1,23 @@
 {
   "name": "conceal-api-cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CLI for Conceal JS API",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ConcealNetwork/conceal-api-cli.git"
+  },
+  "keywords": [
+    "conceal",
+    "cryptocurrency",
+    "rpc",
+    "api",
+    "cli"
+  ],  
   "author": "Taegus",
   "license": "MIT",
   "dependencies": {
