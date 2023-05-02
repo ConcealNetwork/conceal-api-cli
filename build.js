@@ -1,9 +1,10 @@
 import caxa from "caxa";
+import Os from 'os';
 
 (async () => {
   await caxa({
     input: ".",
-    output: "conceal-cli.exe",
+    output: Os.platform() === "win32" ? "conceal-cli.exe" : "conceal-cli",
     command: [
       "{{caxa}}/node_modules/.bin/node",
       "{{caxa}}/index.js"
