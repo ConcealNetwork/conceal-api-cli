@@ -1,7 +1,6 @@
  {
-  "daemonHost": "http://127.0.0.1", 
+  "daemonHost": "https://ccxapi.conceal.network/daemon", 
   "walletHost": "http://127.0.0.1", 
-  "daemonRpcPort": 16000,
   "walletRpcPort": 6061,
   "timeout": 5000
 }

@@ -21,7 +21,7 @@
   "author": "Taegus",
   "license": "MIT",
   "dependencies": {
-    "commander": "^10.0.1",
+    "commander": "^11.0.0",
     "conceal-api": "^0.8.6",
     "inquirer": "^9.2.0",
     "yargs": "^17.7.1"
